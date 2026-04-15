@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { TrendingUp, TrendingDown, Clock } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 const CATEGORY_COLORS = {
   Crypto:   { bg: 'rgba(234,179,8,0.12)',   color: '#eab308',  border: 'rgba(234,179,8,0.3)' },
@@ -26,15 +27,25 @@ export default function MarketCard({ market, style }) {
   const totalVolume = market.pool_yes + market.pool_no
 
   const closesIn = market.closes_at
-    ? formatDistanceToNow(new Date(market.closes_at), { addSuffix: true })
+    ? formatDistanceToNow(new Date(market.closes_at), { addSuffix: true, locale: es })
     : null
 
   return (
     <div
-      className="card"
+      className="card flex flex-col"
       onClick={() => navigate(`/market/${market.id}`)}
       style={{ cursor: 'pointer', padding: 20, ...style }}
     >
+      {market.image_url && (
+        <div style={{ margin: '-20px -20px 16px -20px', height: 160, overflow: 'hidden', borderTopLeftRadius: 15, borderTopRightRadius: 15, backgroundColor: 'var(--color-surface-900)' }}>
+          <img 
+            src={market.image_url} 
+            alt="Event" 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={(e) => e.target.style.display = 'none'}
+          />
+        </div>
+      )}
       {/* Category + time */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <span className="badge" style={{
@@ -69,7 +80,7 @@ export default function MarketCard({ market, style }) {
       {/* YES / NO percentages */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 700, color: '#22c55e' }}>
-          <TrendingUp size={13} /> YES {yes}%
+          <TrendingUp size={13} /> SÍ {yes}%
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 700, color: '#ef4444' }}>
           NO {no}% <TrendingDown size={13} />

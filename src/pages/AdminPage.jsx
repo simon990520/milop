@@ -71,9 +71,9 @@ function MarketFormModal({ initial, onClose, onSaved }) {
     }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{
         background: 'var(--color-surface-800)', border: '1px solid var(--color-surface-700)',
-        borderRadius: 20, padding: 32, width: '100%', maxWidth: 560,
+        borderRadius: 20, width: '100%', maxWidth: 560,
         maxHeight: '90vh', overflowY: 'auto',
-      }}>
+      }} className="p-5 sm:p-8">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 20 }}>
             {isEdit ? 'Editar Evento' : 'Crear Nuevo Evento'}
@@ -194,6 +194,9 @@ function ResolveModal({ market, onClose }) {
       qc.invalidateQueries(['market', market.id])
       onClose()
     },
+    onError: (err) => {
+      alert('Error: ' + err.message)
+    }
   })
 
   return (
@@ -204,8 +207,8 @@ function ResolveModal({ market, onClose }) {
     }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{
         background: 'var(--color-surface-800)', border: '1px solid var(--color-surface-700)',
-        borderRadius: 20, padding: 32, width: '100%', maxWidth: 440,
-      }}>
+        borderRadius: 20, width: '100%', maxWidth: 440,
+      }} className="p-5 sm:p-8">
         <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 18, fontWeight: 700, marginBottom: 12 }}>
           Resolver evento
         </h2>
@@ -215,7 +218,7 @@ function ResolveModal({ market, onClose }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
           <button
             className="btn-yes"
-            onClick={() => mutation.mutate('YES')}
+            onClick={() => mutation.mutate('SÍ')}
             disabled={mutation.isPending}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
           >
@@ -303,11 +306,11 @@ function MarketRow({ market, onEdit, onResolve, onDelete }) {
         {market.resolved ? (
           <span style={{
             padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700,
-            background: market.outcome === 'YES' ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-            color: market.outcome === 'YES' ? '#22c55e' : '#ef4444',
-            border: `1px solid ${market.outcome === 'YES' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+            background: market.outcome === 'SÍ' ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
+            color: market.outcome === 'SÍ' ? '#22c55e' : '#ef4444',
+            border: `1px solid ${market.outcome === 'SÍ' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
           }}>
-            {market.outcome === 'YES' ? 'SÍ' : 'NO'}
+            {market.outcome === 'SÍ' ? 'SÍ' : 'NO'}
           </span>
         ) : (
           <span style={{
@@ -362,7 +365,11 @@ function MarketRow({ market, onEdit, onResolve, onDelete }) {
           <button
             title="Eliminar"
             onClick={() => {
-              if (confirm('¿Eliminar este evento? Esta acción es irreversible.')) delMut.mutate()
+              if (confirm('¿Eliminar este evento? Esta acción es irreversible.')) {
+                delMut.mutate(undefined, {
+                  onError: (err) => alert('Error al eliminar: ' + err.message)
+                })
+              }
             }}
             disabled={delMut.isPending}
             style={{
@@ -397,7 +404,7 @@ export default function AdminPage() {
   const totalVol = markets?.reduce((s, m) => s + m.pool_yes + m.pool_no, 0) ?? 0
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '36px 24px 80px' }}>
+    <div style={{ maxWidth: 1200, margin: '0 auto' }} className="px-4 md:px-6 py-6 md:py-9 pb-20">
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
         <div>

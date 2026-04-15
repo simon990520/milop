@@ -26,11 +26,13 @@ async function bootstrap() {
     // Dynamically import Clerk — only runs when we have a valid key
     const { ClerkProvider } = await import('@clerk/clerk-react')
     const { ClerkAuthProvider } = await import('./context/ClerkAuthProvider')
+    const { dark } = await import('@clerk/themes')
+    const { esES } = await import('@clerk/localizations')
 
     console.info('[Polycol] Clerk authentication enabled.')
 
     Providers = ({ children }) => (
-      <ClerkProvider publishableKey={RAW_KEY}>
+      <ClerkProvider publishableKey={RAW_KEY} appearance={{ baseTheme: dark }} localization={esES}>
         <ClerkAuthProvider>
           {children}
         </ClerkAuthProvider>

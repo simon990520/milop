@@ -126,7 +126,7 @@ export default function MarketPage() {
   const catColor = CATEGORY_COLORS[market.category] || '#6366f1'
 
   return (
-    <div style={{ maxWidth: 980, margin: '0 auto', padding: '32px 24px 80px' }}>
+    <div style={{ maxWidth: 980, margin: '0 auto' }} className="px-4 md:px-6 py-6 pb-20">
       {/* Volver */}
       <Link
         to="/"
@@ -141,7 +141,7 @@ export default function MarketPage() {
         <ArrowLeft size={14} /> Volver a mercados
       </Link>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr min(340px, 100%)', gap: 24, alignItems: 'start' }}>
+      <div className="flex flex-col lg:grid lg:grid-cols-[1fr_min(340px,100%)] gap-6 items-start">
         {/* Columna izquierda */}
         <div style={{ minWidth: 0 }}>
           {/* Categoría + estado */}
@@ -153,11 +153,11 @@ export default function MarketPage() {
             </span>
             {market.resolved && (
               <span className="badge" style={{
-                background: market.outcome === 'YES' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
-                color: market.outcome === 'YES' ? '#22c55e' : '#ef4444',
-                border: `1px solid ${market.outcome === 'YES' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                background: market.outcome === 'SÍ' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
+                color: market.outcome === 'SÍ' ? '#22c55e' : '#ef4444',
+                border: `1px solid ${market.outcome === 'SÍ' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
               }}>
-                ✓ RESUELTO: {market.outcome === 'YES' ? 'SÍ' : 'NO'}
+                ✓ RESUELTO: {market.outcome === 'SÍ' ? 'SÍ' : 'NO'}
               </span>
             )}
           </div>

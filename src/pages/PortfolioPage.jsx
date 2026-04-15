@@ -68,7 +68,7 @@ export default function PortfolioPage() {
   }
 
   const totalBetted = bets?.reduce((s, b) => s + b.amount, 0) ?? 0
-  const yesBets = bets?.filter(b => b.outcome === 'YES').length ?? 0
+  const yesBets = bets?.filter(b => b.outcome === 'SÍ').length ?? 0
   const noBets  = bets?.filter(b => b.outcome === 'NO').length ?? 0
 
   return (
@@ -131,9 +131,9 @@ export default function PortfolioPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                   <span style={{
                     padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 700,
-                    background: bet.outcome === 'YES' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
-                    color: bet.outcome === 'YES' ? '#22c55e' : '#ef4444',
-                    border: `1px solid ${bet.outcome === 'YES' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                    background: bet.outcome === 'SÍ' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
+                    color: bet.outcome === 'SÍ' ? '#22c55e' : '#ef4444',
+                    border: `1px solid ${bet.outcome === 'SÍ' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
                   }}>
                     {bet.outcome}
                   </span>

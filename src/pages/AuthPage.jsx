@@ -74,7 +74,7 @@ export default function AuthPage() {
           Bienvenido a Polycol
         </h2>
         <p style={{ color: '#8b949e', marginBottom: 28, fontSize: 14 }}>Inicia sesión para comenzar a operar.</p>
-        <Suspense fallback={<div style={{ color: '#8b949e' }}>Loading…</div>}>
+        <Suspense fallback={<div style={{ color: '#8b949e' }}>Cargando…</div>}>
           <ClerkSignIn routing="hash" />
         </Suspense>
       </div>

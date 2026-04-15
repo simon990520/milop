@@ -75,14 +75,12 @@ export async function updateMarket(id, fields) {
 }
 
 export async function resolveMarket(id, outcome) {
-  const { data, error } = await supabase
-    .from('markets')
-    .update({ resolved: true, outcome })
-    .eq('id', id)
-    .select()
-    .single()
+  const { error } = await supabase.rpc('resolve_market_and_payout', {
+    p_market_id: id,
+    p_outcome: outcome
+  })
   if (error) throw error
-  return data
+  return true
 }
 
 export async function deleteMarket(id) {
@@ -90,6 +88,20 @@ export async function deleteMarket(id) {
     .from('markets')
     .delete()
     .eq('id', id)
+  if (error) throw error
+}
+
+// ──────────────────────────────────────────────────────────
+// BILLETERA (WALLET)
+// ──────────────────────────────────────────────────────────
+
+export async function depositFunds(amount) {
+  const { error } = await supabase.rpc('deposit_funds', { p_amount: amount })
+  if (error) throw error
+}
+
+export async function withdrawFunds(amount) {
+  const { error } = await supabase.rpc('withdraw_funds', { p_amount: amount })
   if (error) throw error
 }
 
@@ -136,48 +148,14 @@ export async function getUserBalance(userId) {
 // APUESTAS
 // ──────────────────────────────────────────────────────────
 
-export async function placeBet({ userId, marketId, outcome, amount, market }) {
-  const totalPool = market.pool_yes + market.pool_no
-  const outcomePool = outcome === 'YES' ? market.pool_yes : market.pool_no
-  const price = outcomePool / totalPool
-  const shares = amount / price
-
-  // 1. Verificar saldo
-  const { data: user, error: balErr } = await supabase
-    .from('users')
-    .select('balance')
-    .eq('id', userId)
-    .single()
-  if (balErr) throw balErr
-  if (user.balance < amount) throw new Error('Saldo insuficiente')
-
-  // 2. Descontar saldo
-  const { error: updateErr } = await supabase
-    .from('users')
-    .update({ balance: user.balance - amount })
-    .eq('id', userId)
-  if (updateErr) throw updateErr
-
-  // 3. Actualizar pool del mercado
-  const poolUpdate = outcome === 'YES'
-    ? { pool_yes: market.pool_yes + amount }
-    : { pool_no: market.pool_no + amount }
-
-  const { error: mktErr } = await supabase
-    .from('markets')
-    .update(poolUpdate)
-    .eq('id', marketId)
-  if (mktErr) throw mktErr
-
-  // 4. Registrar apuesta
-  const { data: bet, error: betErr } = await supabase
-    .from('bets')
-    .insert({ user_id: userId, market_id: marketId, outcome, amount, shares, price })
-    .select()
-    .single()
-  if (betErr) throw betErr
-
-  return bet
+export async function placeBet({ marketId, outcome, amount }) {
+  const { error } = await supabase.rpc('place_bet', {
+    p_market_id: marketId,
+    p_outcome: outcome,
+    p_amount: amount
+  })
+  if (error) throw error
+  return true
 }
 
 export async function getUserBets(userId) {

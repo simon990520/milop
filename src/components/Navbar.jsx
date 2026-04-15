@@ -1,20 +1,23 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useState } from 'react'
 import { TrendingUp, Wallet, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useUserBalance } from '../hooks/useUserBalance'
+import WalletModal from './WalletModal'
 
-function BalancePill() {
+function BalancePill({ onClick }) {
   const { balance, isLoading } = useUserBalance()
   if (isLoading) return <span className="skeleton" style={{ width: 64, height: 20, display: 'inline-block' }} />
   return (
-    <span style={{
+    <button onClick={onClick} style={{
       display: 'inline-flex', alignItems: 'center', gap: 6,
       background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)',
-      borderRadius: 999, padding: '4px 12px', fontSize: 13, fontWeight: 600, color: '#22c55e'
-    }}>
+      borderRadius: 999, padding: '4px 12px', fontSize: 13, fontWeight: 600, color: '#22c55e',
+      cursor: 'pointer', transition: 'all 0.2s', outline: 'none'
+    }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(34,197,94,0.2)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(34,197,94,0.12)'}>
       <Wallet size={13} />
       ${Number(balance).toFixed(2)}
-    </span>
+    </button>
   )
 }
 
@@ -38,7 +41,9 @@ function UserAvatar({ user }) {
 
 export default function Navbar() {
   const location = useLocation()
-  const { isSignedIn, user, clerkEnabled } = useAuth()
+  const { isSignedIn, user, clerkEnabled, signOut } = useAuth()
+  const [showWallet, setShowWallet] = useState(false)
+  const { balance } = useUserBalance()
 
   const navLink = (to, label) => {
     const active = location.pathname === to
@@ -64,8 +69,7 @@ export default function Navbar() {
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
       borderBottom: '1px solid rgba(48,54,61,0.6)',
-      padding: '0 24px',
-    }}>
+    }} className="px-4 md:px-6">
       <div style={{
         maxWidth: 1280, margin: '0 auto',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -81,7 +85,7 @@ export default function Navbar() {
           }}>
             <TrendingUp size={18} color="white" />
           </div>
-          <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 18, color: '#e6edf3' }}>
+          <span className="hidden sm:inline" style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 18, color: '#e6edf3' }}>
             Poly<span style={{ color: '#22c55e' }}>col</span>
           </span>
         </Link>
@@ -90,16 +94,31 @@ export default function Navbar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           {navLink('/', 'Mercados')}
           {navLink('/portfolio', 'Portafolio')}
-          {navLink('/admin', 'Admin')}
         </div>
 
         {/* Auth */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {isSignedIn ? (
-            <>
-              <BalancePill />
-              <UserAvatar user={user} />
-            </>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} className="sm:gap-4">
+              <BalancePill onClick={() => setShowWallet(true)} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <UserAvatar user={user} />
+                {clerkEnabled && signOut && (
+                  <button 
+                    onClick={() => signOut()}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      fontSize: 13, color: '#8b949e', textDecoration: 'underline',
+                      padding: 0, transition: 'color 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#8b949e'}
+                  >
+                    Salir
+                  </button>
+                )}
+              </div>
+            </div>
           ) : (
             <Link to="/auth">
               <button className="btn-primary" style={{ fontSize: 13, padding: '7px 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -109,6 +128,7 @@ export default function Navbar() {
           )}
         </div>
       </div>
+      {showWallet && <WalletModal onClose={() => setShowWallet(false)} balance={balance} />}
     </nav>
   )
 }

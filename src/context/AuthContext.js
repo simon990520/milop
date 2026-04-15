@@ -11,6 +11,8 @@ export const AuthContext = createContext({
   isLoaded: true,
   user: null,
   clerkEnabled: false,
+  getToken: async () => null,
+  signOut: () => {},
 })
 
 export function useAuth() {

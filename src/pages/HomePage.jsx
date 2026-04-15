@@ -125,9 +125,9 @@ export default function HomePage() {
       </div>
 
       {/* ── Grid de mercados ── */}
-      <section style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 24px 64px' }}>
+      <section style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 24px 64px' }} className="px-4 md:px-6">
         {isLoading && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
             {Array(6).fill(null).map((_, i) => <CardSkeleton key={i} />)}
           </div>
         )}
@@ -146,7 +146,7 @@ export default function HomePage() {
         )}
 
         {!isLoading && !isError && filtered.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
             {filtered.map((market, i) => (
               <MarketCard
                 key={market.id}

@@ -8,7 +8,7 @@ import { Loader2, AlertCircle, CheckCircle2, Lock } from 'lucide-react'
 export default function BetPanel({ market }) {
   const { user, isSignedIn, clerkEnabled } = useAuth()
   const queryClient = useQueryClient()
-  const [outcome, setOutcome] = useState('YES')
+  const [outcome, setOutcome] = useState('SÍ')
   const [amount, setAmount] = useState('')
   const [status, setStatus] = useState(null)
   const [errMsg, setErrMsg] = useState('')
@@ -16,13 +16,13 @@ export default function BetPanel({ market }) {
   const totalPool = market.pool_yes + market.pool_no
   const priceYes = market.pool_yes / totalPool
   const priceNo  = market.pool_no  / totalPool
-  const price    = outcome === 'YES' ? priceYes : priceNo
+  const price    = outcome === 'SÍ' ? priceYes : priceNo
   const shares   = amount ? (parseFloat(amount) / price).toFixed(4) : '—'
   const potentialWin = amount ? (parseFloat(amount) / price).toFixed(2) : '—'
 
   const mutation = useMutation({
     mutationFn: () =>
-      placeBet({ userId: user.id, marketId: market.id, outcome, amount: parseFloat(amount), market }),
+      placeBet({ marketId: market.id, outcome, amount: parseFloat(amount) }),
     onSuccess: () => {
       setStatus('success')
       setAmount('')
@@ -57,7 +57,7 @@ export default function BetPanel({ market }) {
 
       {/* Outcome toggle */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 }}>
-        {['YES', 'NO'].map(o => (
+        {['SÍ', 'NO'].map(o => (
           <button
             key={o}
             onClick={() => setOutcome(o)}
@@ -65,15 +65,15 @@ export default function BetPanel({ market }) {
               padding: '12px 0', borderRadius: 10, border: 'none', cursor: 'pointer',
               fontWeight: 700, fontSize: 15, transition: 'all 0.15s ease',
               background: outcome === o
-                ? o === 'YES' ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'linear-gradient(135deg,#ef4444,#b91c1c)'
+                ? o === 'SÍ' ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'linear-gradient(135deg,#ef4444,#b91c1c)'
                 : 'var(--color-surface-700)',
               color: outcome === o ? 'white' : '#8b949e',
               boxShadow: outcome === o
-                ? o === 'YES' ? '0 4px 16px rgba(34,197,94,0.25)' : '0 4px 16px rgba(239,68,68,0.25)'
+                ? o === 'SÍ' ? '0 4px 16px rgba(34,197,94,0.25)' : '0 4px 16px rgba(239,68,68,0.25)'
                 : 'none',
             }}
           >
-            {o} · {Math.round(o === 'YES' ? priceYes * 100 : priceNo * 100)}¢
+            {o} · {Math.round(o === 'SÍ' ? priceYes * 100 : priceNo * 100)}¢
           </button>
         ))}
       </div>
@@ -149,11 +149,11 @@ export default function BetPanel({ market }) {
         <button
           onClick={handleBet}
           disabled={mutation.isPending || !amount}
-          className={outcome === 'YES' ? 'btn-yes' : 'btn-no'}
+          className={outcome === 'SÍ' ? 'btn-yes' : 'btn-no'}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
         >
           {mutation.isPending
-            ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Processing…</>
+            ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Procesando…</>
             : `Apostar ${outcome} ${amount ? `$${amount}` : ''}`
           }
         </button>
