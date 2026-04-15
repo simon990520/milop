@@ -139,6 +139,46 @@ create policy "Eliminar comentario propio"
   on public.comments for delete using ((auth.jwt() ->> 'sub') = user_id);
 
 -- ================================================================
+-- TABLA: comment_reactions (Icono de dinero 💸)
+-- ================================================================
+create table public.comment_reactions (
+  comment_id  uuid        not null references public.comments(id) on delete cascade,
+  user_id     text        not null references public.users(id)   on delete cascade,
+  primary key (comment_id, user_id)
+);
+
+alter table public.comment_reactions enable row level security;
+
+create policy "Lectura pública de reacciones"
+  on public.comment_reactions for select using (true);
+
+create policy "Gestionar reacción propia"
+  on public.comment_reactions for all using ((auth.jwt() ->> 'sub') = user_id);
+
+-- ================================================================
+-- TABLA: notifications
+-- ================================================================
+create table public.notifications (
+  id          uuid        primary key default uuid_generate_v4(),
+  user_id     text        not null references public.users(id) on delete cascade,
+  title       text        not null,
+  message     text        not null,
+  link        text,
+  read        boolean     not null default false,
+  created_at  timestamptz not null default now()
+);
+
+create index notifications_user_id_idx on public.notifications(user_id);
+
+alter table public.notifications enable row level security;
+
+create policy "El usuario puede ver sus propias notificaciones"
+  on public.notifications for select using ((auth.jwt() ->> 'sub') = user_id);
+
+create policy "El usuario puede actualizar sus propias notificaciones"
+  on public.notifications for update using ((auth.jwt() ->> 'sub') = user_id);
+
+-- ================================================================
 -- DATOS INICIALES: mercados de ejemplo
 -- ================================================================
 insert into public.markets (question, description, category, pool_yes, pool_no, closes_at) values
@@ -270,9 +310,29 @@ begin
     raise exception 'Mercado ya resuelto o no encontrado';
   end if;
 
-  for b in (select user_id, shares from public.bets where market_id = p_market_id and outcome = p_outcome) loop
-    v_payout := b.shares; -- 1 share paga $1
+  for b in (select user_id, shares, amount from public.bets where market_id = p_market_id and outcome = p_outcome) loop
+    v_payout := b.shares; -- 1 share paga 1 COL
     update public.users set balance = balance + v_payout where id = b.user_id;
+
+    -- Notificar al ganador
+    insert into public.notifications (user_id, title, message, link)
+    values (
+      b.user_id,
+      '¡Has ganado!',
+      format('Tu apuesta en "%s" ha sido exitosa. Has recibido %s COL.', (select question from public.markets where id = p_market_id), v_payout::text),
+      '/portfolio'
+    );
+  end loop;
+
+  -- Notificar a los perdedores
+  for b in (select distinct user_id from public.bets where market_id = p_market_id and outcome != p_outcome) loop
+    insert into public.notifications (user_id, title, message, link)
+    values (
+      b.user_id,
+      'Evento resuelto',
+      format('El evento "%s" se ha resuelto como %s. Mejor suerte la próxima vez.', (select question from public.markets where id = p_market_id), p_outcome),
+      '/portfolio'
+    );
   end loop;
 end;
 $$;

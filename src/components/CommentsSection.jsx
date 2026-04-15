@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getComments, addComment, deleteComment } from '../lib/api'
+import { getComments, addComment, deleteComment, toggleCommentReaction, getCommentReactions } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
-import { Send, Trash2, MessageCircle, Lock } from 'lucide-react'
+import { Send, Trash2, MessageCircle, Lock, Banknote } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -60,11 +60,51 @@ function CommentItem({ comment, currentUserId, onDelete }) {
             </button>
           )}
         </div>
-        <p style={{ fontSize: 14, color: '#c9d1d9', lineHeight: 1.6, wordBreak: 'break-word' }}>
+        <p style={{ fontSize: 14, color: '#c9d1d9', lineHeight: 1.6, wordBreak: 'break-word', marginBottom: 12 }}>
           {comment.content}
         </p>
+        <CommentReactions commentId={comment.id} currentUserId={currentUserId} />
       </div>
     </div>
+  )
+}
+
+function CommentReactions({ commentId, currentUserId }) {
+  const qc = useQueryClient()
+  const { data: reactions, isLoading } = useQuery({
+    queryKey: ['reactions', commentId],
+    queryFn: () => getCommentReactions(commentId)
+  })
+
+  const reactMut = useMutation({
+    mutationFn: () => toggleCommentReaction(commentId, currentUserId),
+    onSuccess: () => qc.invalidateQueries(['reactions', commentId])
+  })
+
+  if (isLoading) return <div className="skeleton" style={{ width: 40, height: 24, borderRadius: 6 }} />
+
+  const hasReacted = reactions?.some(r => r.user_id === currentUserId)
+  const count = reactions?.length ?? 0
+
+  return (
+    <button 
+      onClick={() => currentUserId && reactMut.mutate()}
+      disabled={!currentUserId}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        padding: '4px 8px', borderRadius: 8, border: '1px solid',
+        borderColor: hasReacted ? 'rgba(34,197,94,0.4)' : 'rgba(48,54,61,0.6)',
+        background: hasReacted ? 'rgba(34,197,94,0.1)' : 'transparent',
+        color: hasReacted ? '#22c55e' : '#8b949e',
+        fontSize: 12, fontWeight: 600, cursor: currentUserId ? 'pointer' : 'default',
+        transition: 'all 0.2s'
+      }}
+      onMouseEnter={e => { if (currentUserId) e.currentTarget.style.borderColor = '#22c55e' }}
+      onMouseLeave={e => { if (currentUserId) e.currentTarget.style.borderColor = hasReacted ? 'rgba(34,197,94,0.4)' : 'rgba(48,54,61,0.6)' }}
+    >
+      <Banknote size={14} />
+      {count > 0 && <span>{count}</span>}
+    </button>
   )
 }
 

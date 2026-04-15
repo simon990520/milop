@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { placeBet } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
-import { Loader2, AlertCircle, CheckCircle2, Lock } from 'lucide-react'
+import { Loader2, AlertCircle, CheckCircle2, Lock, Share2, ClipboardCheck } from 'lucide-react'
 
 export default function BetPanel({ market }) {
   const { user, isSignedIn, clerkEnabled } = useAuth()
@@ -12,6 +12,7 @@ export default function BetPanel({ market }) {
   const [amount, setAmount] = useState('')
   const [status, setStatus] = useState(null)
   const [errMsg, setErrMsg] = useState('')
+  const [shareFeedback, setShareFeedback] = useState(false)
 
   const totalPool = market.pool_yes + market.pool_no
   const priceYes = market.pool_yes / totalPool
@@ -81,7 +82,7 @@ export default function BetPanel({ market }) {
       {/* Amount input */}
       <div style={{ marginBottom: 16 }}>
         <label style={{ fontSize: 12, color: '#8b949e', fontWeight: 500, display: 'block', marginBottom: 6 }}>
-          Cantidad (USD)
+          Cantidad (COL)
         </label>
         <input type="number" min="1" step="1" value={amount}
           onChange={e => setAmount(e.target.value)} placeholder="Ingresa un monto…" />
@@ -89,16 +90,16 @@ export default function BetPanel({ market }) {
 
       {/* Quick amounts */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
-        {[10, 25, 50, 100].map(v => (
+        {[500, 1000, 5000, 10000].map(v => (
           <button key={v} onClick={() => setAmount(String(v))} style={{
-            flex: 1, padding: '6px 0', borderRadius: 8, fontSize: 12, fontWeight: 600,
+            flex: 1, padding: '6px 0', borderRadius: 8, fontSize: 10, fontWeight: 600,
             background: 'var(--color-surface-700)', border: '1px solid var(--color-surface-600)',
             color: '#8b949e', cursor: 'pointer', transition: 'all 0.15s',
           }}
             onMouseEnter={e => { e.target.style.background = 'var(--color-surface-600)'; e.target.style.color = '#e6edf3' }}
             onMouseLeave={e => { e.target.style.background = 'var(--color-surface-700)'; e.target.style.color = '#8b949e' }}
           >
-            ${v}
+            {v}
           </button>
         ))}
       </div>
@@ -119,7 +120,7 @@ export default function BetPanel({ market }) {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
             <span style={{ color: '#8b949e' }}>Ganancia potencial</span>
-            <span style={{ color: '#22c55e', fontWeight: 700 }}>${potentialWin}</span>
+            <span style={{ color: '#22c55e', fontWeight: 700 }}>{potentialWin} COL</span>
           </div>
         </div>
       )}
@@ -154,7 +155,7 @@ export default function BetPanel({ market }) {
         >
           {mutation.isPending
             ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Procesando…</>
-            : `Apostar ${outcome} ${amount ? `$${amount}` : ''}`
+            : `Apostar ${outcome} ${amount ? `${amount} COL` : ''}`
           }
         </button>
       ) : (
@@ -165,6 +166,36 @@ export default function BetPanel({ market }) {
           </button>
         </Link>
       )}
+
+      {/* Compartir */}
+      <div style={{ marginTop: 16, borderTop: '1px solid var(--color-surface-700)', paddingTop: 16 }}>
+        <button 
+          onClick={async () => {
+            const shareData = {
+              title: 'Polycol - Predicción',
+              text: `¿Qué opinas? Estoy mirando: "${market.question}" en Polycol.`,
+              url: window.location.href,
+            }
+            if (navigator.share) {
+              try { await navigator.share(shareData) } catch (e) {}
+            } else {
+              navigator.clipboard.writeText(window.location.href)
+              setShareFeedback(true)
+              setTimeout(() => setShareFeedback(false), 2000)
+            }
+          }}
+          style={{
+            width: '100%', background: 'transparent', border: '1px solid var(--color-surface-600)',
+            borderRadius: 10, padding: '10px', color: '#8b949e', fontSize: 13, fontWeight: 600,
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = '#22c55e'; e.currentTarget.style.color = '#e6edf3' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--color-surface-600)'; e.currentTarget.style.color = '#8b949e' }}
+        >
+          {shareFeedback ? <><ClipboardCheck size={16} color="#22c55e" /> ¡URL Copiada!</> : <><Share2 size={16} /> Compartir Evento</>}
+        </button>
+      </div>
     </div>
   )
 }

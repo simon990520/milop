@@ -66,9 +66,9 @@ export default function WalletModal({ onClose, balance }) {
 
         <div style={{ padding: 24 }}>
           <div style={{ background: 'var(--color-surface-900)', borderRadius: 12, padding: 16, marginBottom: 20, textAlign: 'center', border: '1px solid var(--color-surface-700)' }}>
-            <p style={{ fontSize: 12, color: '#8b949e', marginBottom: 4, fontWeight: 600, textTransform: 'uppercase' }}>Saldo Dispobible</p>
+            <p style={{ fontSize: 12, color: '#8b949e', marginBottom: 4, fontWeight: 600, textTransform: 'uppercase' }}>Saldo Disponible</p>
             <p style={{ fontSize: 24, fontWeight: 700, fontFamily: 'Space Grotesk, sans-serif', color: '#22c55e' }}>
-              ${Number(balance).toFixed(2)}
+              {Number(balance).toLocaleString()} COL
             </p>
           </div>
 
@@ -92,7 +92,7 @@ export default function WalletModal({ onClose, balance }) {
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: 20 }}>
               <label style={{ fontSize: 12, color: '#8b949e', fontWeight: 500, display: 'block', marginBottom: 8 }}>
-                Monto a {tab === 'deposit' ? 'recargar' : 'retirar'} (USD)
+                Monto a {tab === 'deposit' ? 'recargar' : 'retirar'} (COL)
               </label>
               <input 
                 type="number" min="1" step="0.01" value={amount} 

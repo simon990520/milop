@@ -141,9 +141,9 @@ export default function MarketPage() {
         <ArrowLeft size={14} /> Volver a mercados
       </Link>
 
-      <div className="flex flex-col lg:grid lg:grid-cols-[1fr_min(340px,100%)] gap-6 items-start">
-        {/* Columna izquierda */}
-        <div style={{ minWidth: 0 }}>
+      <div className="flex flex-col lg:grid lg:grid-cols-[1fr_min(340px,100%)] gap-8 items-start">
+        {/* Columna izquierda: Información del evento */}
+        <div className="w-full min-w-0 order-1 lg:order-1">
           {/* Categoría + estado */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
             <span className="badge" style={{
@@ -178,7 +178,7 @@ export default function MarketPage() {
               alt="banner"
               onError={e => e.target.style.display = 'none'}
               style={{
-                width: '100%', height: 200, objectFit: 'cover',
+                width: '100%', height: 260, objectFit: 'cover',
                 borderRadius: 12, marginBottom: 16,
                 border: '1px solid var(--color-surface-700)',
               }}
@@ -194,14 +194,16 @@ export default function MarketPage() {
 
           {/* Gráfico de probabilidades */}
           <OddsChart market={market} />
-
-          {/* Sección de comentarios */}
-          <CommentsSection marketId={market.id} />
         </div>
 
-        {/* Columna derecha — Panel de apuesta */}
-        <div style={{ position: 'sticky', top: 80 }}>
+        {/* Columna derecha: Panel de apuesta (Aparece 2do en móvil, 2da col en desktop) */}
+        <div className="w-full order-2 lg:order-2 lg:sticky lg:top-24">
           <BetPanel market={market} />
+        </div>
+
+        {/* Sección de comentarios (Aparece 3ro en móvil, pero abajo en desktop) */}
+        <div className="w-full order-3 lg:col-span-1 lg:order-3">
+          <CommentsSection marketId={market.id} />
         </div>
       </div>
     </div>

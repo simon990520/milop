@@ -93,7 +93,7 @@ export default function MarketCard({ market, style }) {
         paddingTop: 12, borderTop: '1px solid rgba(48,54,61,0.6)',
         fontSize: 12, color: '#8b949e',
       }}>
-        <span>Vol <strong style={{ color: '#e6edf3' }}>${totalVolume.toLocaleString()}</strong></span>
+        <span>Vol <strong style={{ color: '#e6edf3' }}>{totalVolume.toLocaleString()} COL</strong></span>
         {market.resolved && (
           <span style={{
             color: '#eab308', background: 'rgba(234,179,8,0.12)',

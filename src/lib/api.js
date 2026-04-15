@@ -205,3 +205,65 @@ export async function deleteComment(commentId) {
     .eq('id', commentId)
   if (error) throw error
 }
+
+// ──────────────────────────────────────────────────────────
+// REACCIONES
+// ──────────────────────────────────────────────────────────
+
+export async function toggleCommentReaction(commentId, userId) {
+  const { data, error: checkError } = await supabase
+    .from('comment_reactions')
+    .select('*')
+    .eq('comment_id', commentId)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (checkError) throw checkError
+
+  if (data) {
+    const { error: delError } = await supabase
+      .from('comment_reactions')
+      .delete()
+      .eq('comment_id', commentId)
+      .eq('user_id', userId)
+    if (delError) throw delError
+    return false // quitado
+  } else {
+    const { error: insError } = await supabase
+      .from('comment_reactions')
+      .insert({ comment_id: commentId, user_id: userId })
+    if (insError) throw insError
+    return true // puesto
+  }
+}
+
+export async function getCommentReactions(commentId) {
+  const { data, error } = await supabase
+    .from('comment_reactions')
+    .select('user_id')
+    .eq('comment_id', commentId)
+  if (error) throw error
+  return data
+}
+
+// ──────────────────────────────────────────────────────────
+// NOTIFICACIONES
+// ──────────────────────────────────────────────────────────
+
+export async function getNotifications(userId) {
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function markNotificationAsRead(id) {
+  const { error } = await supabase
+    .from('notifications')
+    .update({ read: true })
+    .eq('id', id)
+  if (error) throw error
+}
